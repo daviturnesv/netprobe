@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main, trending/**]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      
+      - name: Run clippy
+        run: cargo clippy -- -D warnings
+      
+      - name: Build
+        run: cargo build --release
+      
+      - name: Run tests
+        run: cargo test
+      
+      - name: Test binary works
+        run: |
+          ./target/release/netprobe --help
+          ./target/release/netprobe probe --host 127.0.0.1 --port 0 --count 1 --timeout 1000 2>&1 | head -20
+
+  release:
+    needs: build-and-test
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Build release
+        run: cargo build --release
+      
+      - name: Create release archive
+        run: |
+          tar -czf netprobe-${{ github.ref_name }}-x86_64-unknown-linux-gnu.tar.gz -C target/release netprobe
+      
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: netprobe-${{ github.ref_name }}-x86_64-unknown-linux-gnu.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
