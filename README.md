@@ -140,3 +140,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 3. Make your changes
 4. Run tests and lint
 5. Submit a PR
+# Trigger CI
