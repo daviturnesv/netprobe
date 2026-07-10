@@ -164,7 +164,7 @@ func runStandardProbe() error {
 	switch outputFormat {
 	case "json":
 		formatter := output.NewJSONFormatter()
-		data, err = formatter.FormatProbe(results, probe.Stats{Sent: sent, Received: received, Lost: lost, LossPct: lossPct}, probe.Percentiles{P50: p50, P95: p95, P99: p99})
+		data, err = formatter.FormatProbe(results, probe.Stats{Sent: sent, Received: received, Lost: lost, LossPct: lossPct}, probe.Percentiles{P50: p50, P95: p95, P99: p99}, target, port, protocol)
 	case "csv":
 		formatter := output.NewCSVFormatter()
 		data, err = formatter.FormatProbe(results)
