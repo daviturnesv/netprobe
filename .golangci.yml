@@ -1,0 +1,27 @@
+version: "2"
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - bodyclose
+    - misspell
+    - unconvert
+    - gocyclo
+    - gosec
+    - predeclared
+    - noctx
+    - nolintlint
+    - dupl
+    - goconst
+    - gocritic
+    - revive
+  disable:
+    - gocognit
+    - lll
+    - wsl
